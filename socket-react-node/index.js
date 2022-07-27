@@ -1,27 +1,32 @@
-// const express = require('express');
-// const cors = require('cors');
-// const app = express();
-// const http = require('http');
-// const {Server} = require('socket.io')
-// const expressServer = http.createServer(app);
-// const port = process.env.PORT || 5000;
+const express = require('express');
+const app = express();
+const http = require('http');
+const {Server} = require('socket.io')
+const expressServer = http.createServer(app);
+const port = process.env.PORT || 5000;
+const path=require('path');
+const io = new Server(expressServer);
 
-// const io = new Server(expressServer);
-
-// let buyNsp = io.of('/buy');
-// buyNsp.on('connection', (socket) => {
-//     buyNsp.emit("MyEvent", "hello buy")
-// })
+app.use(express.static('client/build'));
 
 
-// let sellNsp = io.of('/sell');
-// sellNsp.on('connection', (socket) => {
-//     sellNsp.emit("MyEvent", "hello sell")
-// })
+io.on('connection', function(socket) {
+    console.log('New User Connected');
+    
+    setTimeout(() => {
+        socket.emit('msg', 'This is message from server')
+    }, 5000);
 
+    socket.on('disconnect', function() {
+        console.log('Disconnect User')
+    })
+})
 
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname+'/index.html');
-// })
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname,'client','build','index.html'))
+})
+app.get('/express-server', (req, res) => {
+    res.end('Hello World')
+})
 
-// expressServer.listen(port, ()=> console.log('listening on port http://localhost:'+port))
+expressServer.listen(port, ()=> console.log('listening on port http://localhost:'+port))
